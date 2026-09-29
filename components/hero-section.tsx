@@ -12,8 +12,8 @@ export function HeroSection() {
         </Reveal>
 
         <Reveal delay={150}>
-          <h1 className="font-serif text-[22vw] leading-[0.95] font-light tracking-[0.08em] text-foreground sm:text-7xl md:text-8xl lg:text-9xl">
-            SIMON
+          <h1 className="font-serif text-[12vw] leading-[0.95] font-light tracking-[0.08em] text-foreground sm:text-6xl md:text-7xl lg:text-8xl">
+            SIMON&nbsp;ZHU
           </h1>
         </Reveal>
 
@@ -27,7 +27,7 @@ export function HeroSection() {
         </Reveal>
 
         <Reveal delay={450}>
-          <p className="mt-8 max-w-md text-sm leading-loose text-muted-foreground">
+          <p className="mt-8 max-w-md font-serif text-base leading-loose tracking-[0.1em] text-foreground/80 md:text-lg">
             獨立思考，明辨是非。
           </p>
         </Reveal>
