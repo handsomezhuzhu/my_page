@@ -7,7 +7,7 @@ export function HeroSection() {
         <Reveal>
           <p className="mb-8 flex items-center gap-4 font-mono text-[10px] tracking-[0.4em] text-muted-foreground/80 uppercase">
             <span className="h-px w-10 bg-foreground/30" />
-            Personal&nbsp;Homepage&nbsp;—&nbsp;个人主页
+            Personal&nbsp;Homepage&nbsp;—&nbsp;個人主頁
           </p>
         </Reveal>
 
@@ -28,7 +28,7 @@ export function HeroSection() {
 
         <Reveal delay={450}>
           <p className="mt-8 max-w-md text-sm leading-loose text-muted-foreground">
-            独立思考，明辨是非。
+            獨立思考，明辨是非。
           </p>
         </Reveal>
       </div>

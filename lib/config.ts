@@ -1,6 +1,6 @@
 // 网站配置
 export const siteConfig = {
-  showBeian: true,
+  showBeian: false,
 
   // 备案信息
   beian: {

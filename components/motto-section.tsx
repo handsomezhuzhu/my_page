@@ -5,17 +5,17 @@ export function MottoSection() {
     <div className="relative z-10 flex min-h-svh flex-col items-center justify-center px-6 text-center">
       <Reveal>
         <p className="mb-10 font-mono text-[10px] tracking-[0.4em] text-muted-foreground/70 uppercase">
-          Motto&nbsp;&nbsp;/&nbsp;&nbsp;座右铭
+          Motto&nbsp;&nbsp;/&nbsp;&nbsp;座右銘
         </p>
       </Reveal>
 
       <Reveal delay={150}>
         <blockquote className="on-particles">
           <p className="font-serif text-3xl font-light leading-snug tracking-[0.12em] text-foreground/90 md:text-5xl md:leading-snug">
-            同是天涯沦落人
+            同是天涯淪落人
           </p>
           <p className="mt-4 font-serif text-3xl font-light leading-snug tracking-[0.12em] text-foreground/90 md:mt-6 md:text-5xl md:leading-snug">
-            相逢何必曾相识
+            相逢何必曾相識
           </p>
         </blockquote>
       </Reveal>

@@ -1,13 +1,13 @@
 import { Reveal } from "@/components/reveal"
 
 const links = [
-  { name: "GitHub", href: "https://github.com/handsomezhuzhu", description: "代码仓库" },
-  { name: "Blog", href: "https://zhuzihan.com", description: "技术博客" },
+  { name: "GitHub", href: "https://github.com/handsomezhuzhu", description: "程式碼倉庫" },
+  { name: "Blog", href: "https://zhuzihan.com", description: "技術網誌" },
   { name: "Rank", href: "https://rank.zhuzihan.com", description: "LLM 排行榜", isNew: true },
-  { name: "Home", href: "https://home.zhuzihan.com", description: "个人导航" },
-  { name: "Status", href: "https://status.zhuzihan.com/", description: "服务状态" },
-  { name: "File", href: "https://file.zhuzihan.com", description: "文件快递柜" },
-  { name: "Email", href: "mailto:zhuzihan@zhuzihan.com", description: "联系我" },
+  { name: "Home", href: "https://home.zhuzihan.com", description: "個人導覽" },
+  { name: "Status", href: "https://status.zhuzihan.com/", description: "服務狀態" },
+  { name: "File", href: "https://file.zhuzihan.com", description: "檔案速遞櫃" },
+  { name: "Email", href: "mailto:zhuzihan@zhuzihan.com", description: "聯絡我" },
 ]
 
 export function NavigationLinks() {
@@ -18,7 +18,7 @@ export function NavigationLinks() {
           <div className="mb-10 flex items-end justify-between gap-6">
             <h2 className="flex items-center gap-4 font-mono text-[10px] tracking-[0.4em] text-muted-foreground/80 uppercase">
               <span className="h-px w-10 bg-foreground/30" />
-              Links&nbsp;&nbsp;/&nbsp;&nbsp;链接
+              Links&nbsp;&nbsp;/&nbsp;&nbsp;連結
             </h2>
             <span className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground/50">
               ({String(links.length).padStart(2, "0")})
