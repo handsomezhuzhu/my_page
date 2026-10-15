@@ -17,6 +17,8 @@ import { useEffect, useRef } from "react"
  *
  * 光影：透视深度决定冷暖与亮度；一道光带扫过形态；鼠标处形成手电筒式光晕。
  * 编排：冲击波 + 涡旋 → 按目标位置错峰（横向擦除式重组）→ 湍流 → 弹簧归位。
+ * 入场：仅页面打开时一次 —— 粒子原地待命，一道光自灭点（远端）向相机逐层点亮，
+ *       每层亮起瞬间带一次亮度脉冲，隧道像「通电开机」般从深处推到眼前。
  *
  * 性能：粒子数由自适应逻辑按实测渲染耗时决定，上限见 baseCount()。
  * 实测本机 60fps 下可跑约 27000 个；瓶颈是逐粒子的 CPU 循环（约 0.4µs/个），
@@ -524,6 +526,8 @@ export function ParticleField({ shape }: { shape: ParticleShape }) {
     let flags = new Uint8Array(0) // bit0 stray, bit1 halo, bit2 twinkle
     let pend = new Uint8Array(0)
     let morphAt = new Float32Array(0)
+    // 入场点亮时刻（performance.now() 时间轴），0 表示已点亮/无入场
+    let revealAt = new Float32Array(0)
 
     const F_STRAY = 1
     const F_HALO = 2
@@ -660,6 +664,7 @@ export function ParticleField({ shape }: { shape: ParticleShape }) {
       flags = new Uint8Array(n)
       pend = new Uint8Array(n)
       morphAt = f32()
+      revealAt = f32()
 
       for (let i = 0; i < n; i++) {
         const stray = i % 44 === 0
@@ -794,6 +799,79 @@ export function ParticleField({ shape }: { shape: ParticleShape }) {
     }
     morphRef.current = () => morph(true)
 
+    /**
+     * 入场（仅页面打开时调用一次）：
+     * 粒子直接落在目标位置上静止待命，不做任何冲刺/爆发；
+     * 按目标深度错峰点亮 —— 灭点（远端）先亮，一道光向相机方向扫来，
+     * 亮起瞬间的亮度脉冲在 tick 的 revealAt 逻辑里完成。
+     */
+    const morphIntro = () => {
+      if (n === 0) return
+      const sh = shapeRef.current
+      const f = computeFocus(sh, rw, rh, isMobile)
+      // 焦点立即到位，入场期间不做焦点缓动
+      focus.cx = focusTarget.cx = f.cx
+      focus.cy = focusTarget.cy = f.cy
+      focus.scaleX = focusTarget.scaleX = f.scaleX
+      focus.scaleY = focusTarget.scaleY = f.scaleY
+
+      const now = performance.now()
+      const targets =
+        sh === "corridor"
+          ? generateCorridor(n, W / H)
+          : sh === "ring"
+            ? generateRing(n)
+            : generateGlobe(n)
+      if (targets.length === 0) return
+
+      // 深度归一化：z 越大越远（越靠近灭点）→ 越早点亮
+      let zMin = Infinity
+      let zMax = -Infinity
+      for (const tg of targets) {
+        if (tg.z < zMin) zMin = tg.z
+        if (tg.z > zMax) zMax = tg.z
+      }
+      const zSpan = Math.max(1e-6, zMax - zMin)
+
+      let j = 0
+      for (let i = 0; i < n; i++) {
+        if (flags[i] & F_STRAY) {
+          // 游离尘没有形态目标，随机错峰淡入即可
+          revealAt[i] = now + 400 + Math.random() * 1300
+          continue
+        }
+        const t = targets[j % targets.length]
+        j++
+        bx[i] = t.x
+        by[i] = t.y
+        bz[i] = t.z
+        boost[i] = t.e
+        amul[i] = t.am
+        accent[i] = t.acc
+        if (t.orbit) {
+          mode[i] = 1
+          orbR[i] = t.orbit.r
+          orbI[i] = t.orbit.incl
+          orbS[i] = t.orbit.speed
+          orbP[i] = t.orbit.ph
+        } else {
+          mode[i] = t.m
+        }
+        pend[i] = 0
+        revealAt[i] = now + (1 - (t.z - zMin) / zSpan) * 1500 + Math.random() * 160
+
+        // 静止入场：按 rotY=rotX=0、zShift=0 近似投影到屏幕落位
+        const persp = PERSP / (PERSP + t.z)
+        tx[i] = t.x * persp
+        ty[i] = t.y * persp
+        ppersp[i] = persp
+        px[i] = f.cx + tx[i] * f.scaleX
+        py[i] = f.cy + ty[i] * f.scaleY
+        pvx[i] = 0
+        pvy[i] = 0
+      }
+    }
+
     /* ---------------- resize ---------------- */
 
     const resize = () => {
@@ -805,7 +883,9 @@ export function ParticleField({ shape }: { shape: ParticleShape }) {
       const next = baseCount()
       if (next !== n) {
         allocParticles(next)
-        morph(firstInit)
+        // 仅页面打开时播放入场动画；resize 导致的重建一律静默重定向
+        if (firstInit && !reduced) morphIntro()
+        else morph(false)
       } else {
         morph(false)
       }
@@ -1154,6 +1234,18 @@ export function ParticleField({ shape }: { shape: ParticleShape }) {
           // 闪烁
           if (fl & F_TWINKLE) lum *= 0.72 + 0.6 * Math.abs(fsin(t * 1.7 + pphase[i] * 5))
         }
+
+        // 入场点亮：到点前不渲染，亮起后快速淡入并带一次亮度脉冲；
+        // 结束后归零，后续帧零开销
+        const ra = revealAt[i]
+        if (ra !== 0) {
+          if (now < ra) continue
+          const age = now - ra
+          if (age < 480) lum *= age / 480
+          if (age < 1100) lum *= 1 + 1.7 * Math.exp(-age / 220)
+          else revealAt[i] = 0
+        }
+
         lum += cursorGlow * 1.1
 
         const a = palpha[i] * amul[i] * lum * shapeAlpha
