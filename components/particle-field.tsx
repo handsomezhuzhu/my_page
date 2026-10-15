@@ -809,11 +809,14 @@ export function ParticleField({ shape }: { shape: ParticleShape }) {
       if (n === 0) return
       const sh = shapeRef.current
       const f = computeFocus(sh, rw, rh, isMobile)
-      // 焦点立即到位，入场期间不做焦点缓动
+      // 焦点中心立即到位，但视角从 1.25 倍「贴脸」开始，
+      // 由 tick 里的焦点缓动慢慢拉回 —— 配合逐层点亮形成纵深推进感
       focus.cx = focusTarget.cx = f.cx
       focus.cy = focusTarget.cy = f.cy
-      focus.scaleX = focusTarget.scaleX = f.scaleX
-      focus.scaleY = focusTarget.scaleY = f.scaleY
+      focusTarget.scaleX = f.scaleX
+      focusTarget.scaleY = f.scaleY
+      focus.scaleX = f.scaleX * 1.25
+      focus.scaleY = f.scaleY * 1.25
 
       const now = performance.now()
       const targets =
@@ -858,7 +861,7 @@ export function ParticleField({ shape }: { shape: ParticleShape }) {
           mode[i] = t.m
         }
         pend[i] = 0
-        revealAt[i] = now + (1 - (t.z - zMin) / zSpan) * 1500 + Math.random() * 160
+        revealAt[i] = now + (1 - (t.z - zMin) / zSpan) * 2200 + Math.random() * 120
 
         // 静止入场：按 rotY=rotX=0、zShift=0 近似投影到屏幕落位
         const persp = PERSP / (PERSP + t.z)
@@ -1241,8 +1244,9 @@ export function ParticleField({ shape }: { shape: ParticleShape }) {
         if (ra !== 0) {
           if (now < ra) continue
           const age = now - ra
-          if (age < 480) lum *= age / 480
-          if (age < 1100) lum *= 1 + 1.7 * Math.exp(-age / 220)
+          // 快速淡入 + 强烈的白色闪光脉冲，让每层亮起都有「通电」感
+          if (age < 300) lum *= age / 300
+          if (age < 1600) lum *= 1 + 2.8 * Math.exp(-age / 300)
           else revealAt[i] = 0
         }
 
