@@ -15,7 +15,6 @@ const notoSerifTC = Noto_Serif_TC({
 export const metadata: Metadata = {
   title: "SIMON ZHU",
   description: "同是天涯淪落人，相逢何必曾相識",
-  generator: "v0.app",
   icons: {
     icon: "/favicon.ico",
     apple: "/favicon.ico",
