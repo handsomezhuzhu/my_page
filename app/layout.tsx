@@ -13,7 +13,7 @@ const notoSerifSC = Noto_Serif_SC({
 })
 
 export const metadata: Metadata = {
-  title: "simon",
+  title: "SIMON ZHU",
   description: "同是天涯沦落人，相逢何必曾相识",
   generator: "v0.app",
   icons: {
