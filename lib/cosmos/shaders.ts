@@ -43,7 +43,7 @@ void galaxy(float burst, out vec3 p, out vec3 col, out float br) {
   // 开场：旋臂从轻轻拧紧的状态缓慢舒展开
   float unwind = 1.0 - burst;
   unwind = unwind * unwind * 3.2 / (r + 0.4);
-  float a = aG.y - uTime * (0.085 + 0.06 / (r + 0.35)) - unwind;
+  float a = aG.y - uTime * (0.085 + 0.06 / (r + 0.35)) + unwind;
   p = vec3(r * cos(a), aG.z, r * sin(a));
   p = rotZ(-0.42) * rotX(0.86) * p;
 
@@ -222,7 +222,8 @@ void main() {
       float e = 1.0 - pow(1.0 - t, 3.0);
       float r0 = rT + 2.6 + aS.x * 3.0;
       float rr = mix(r0, rT, e);
-      float aa = aT + (2.2 + aS.x * 1.4) * (1.0 - e);
+      // 投影后星系屏幕旋向为逆时针（角度递增），汇聚须顺着同一旋向
+      float aa = aT - (2.2 + aS.x * 1.4) * (1.0 - e);
       pos.xy = vec2(cos(aa), sin(aa)) * rr;
       pos.z += (aS.y - 0.5) * 1.2 * (1.0 - e);
       br *= smoothstep(0.0, 0.3, t) * (0.35 + 0.65 * e) * (1.0 + 0.45 * sin(PI * e));
