@@ -165,7 +165,7 @@ void main() {
     br = aG.w * (0.6 + 0.4 * sin(uTime * 1.7 + aS.x * 60.0));
     br *= smoothstep(0.4, 3.4, uIntro);
   } else {
-    float burst = clamp((uIntro - 0.25 - aS.y * 0.7) / 3.4, 0.0, 1.0);
+    float burst = 1.0;
 
     vec3 pG; vec3 cG; float bG;
     galaxy(burst, pG, cG, bG);
@@ -213,16 +213,20 @@ void main() {
       col = mix(col, storm, min(1.0, tw) * 0.55);
     }
 
-    // 开场：暗处一团柔和星云慢慢亮起、舒展成旋涡星系 —— 没有闪白和冲击
+    // 开场：四周弥散的星尘沿螺旋轨迹向中心汇聚，核心先成形，旋臂最后卷入并减速落位
     if (uIntro < 6.0) {
-      float e = burst * burst * (3.0 - 2.0 * burst);
-      vec3 dir = normalize(vec3(aS.x - 0.5, (aS.y - 0.5) * 0.55, fract(aS.x * 13.7 + aS.y * 3.1) - 0.5) + 0.0001);
-      float rr = 0.12 + 0.38 * pow(fract(aS.x * 7.3 + aS.y * 1.9), 0.6);
-      vec3 cloud = rotY(uIntro * 0.35) * (dir * rr);
-      pos = mix(cloud, pos, e);
-      float fadeIn = smoothstep(0.0, 1.6, uIntro);
-      br *= fadeIn * (0.55 + 0.45 * e) * (1.0 + 0.5 * sin(PI * e));
-      col = mix(vec3(0.95, 0.86, 0.74), col, e);
+      float rT = length(pos.xy);
+      float aT = atan(pos.y, pos.x);
+      float delay = aS.y * 0.85 + clamp(aG.x / 3.0, 0.0, 1.0) * 0.75;
+      float t = clamp((uIntro - 0.15 - delay) / 2.6, 0.0, 1.0);
+      float e = 1.0 - pow(1.0 - t, 3.0);
+      float r0 = rT + 2.6 + aS.x * 3.0;
+      float rr = mix(r0, rT, e);
+      float aa = aT + (2.2 + aS.x * 1.4) * (1.0 - e);
+      pos.xy = vec2(cos(aa), sin(aa)) * rr;
+      pos.z += (aS.y - 0.5) * 1.2 * (1.0 - e);
+      br *= smoothstep(0.0, 0.3, t) * (0.35 + 0.65 * e) * (1.0 + 0.45 * sin(PI * e));
+      col = mix(vec3(0.62, 0.78, 1.0), col, e * e);
     }
 
     pos *= uScale;

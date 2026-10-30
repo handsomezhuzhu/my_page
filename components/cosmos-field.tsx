@@ -211,9 +211,9 @@ export function CosmosField() {
       const streak = 0
       const shake = 0
       if (intro < INTRO_END) {
-        const rise = Math.min(1, intro / 1.4)
-        core = 0.32 * rise * rise * (1 - smoothstep((intro - 1.2) / 2.6))
-        cam = 2.5 + (3.4 - 2.5) * smoothstep(intro / INTRO_END)
+        const gather = smoothstep((intro - 1.4) / 2.2)
+        core = 0.26 * gather * (1 - smoothstep((intro - 3.6) / 1.0))
+        cam = 4.1 + (3.4 - 4.1) * smoothstep(intro / INTRO_END)
       }
 
       // 叠加层中心随形态迁移
