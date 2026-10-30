@@ -7,17 +7,19 @@ import { PARTICLE_FRAG, PARTICLE_VERT, QUAD_FRAG, QUAD_VERT } from "@/lib/cosmos
 /**
  * 粒子宇宙（WebGL）—— 一条连续的叙事，而不是三张互相切换的图：
  *
- *   开场  奇点 → 大爆炸：全部粒子压缩在一点颤动，0.9s 时闪白 + 冲击波环 + 镜头光条，
- *         粒子过冲式炸开、旋臂由拧紧状态旋开，镜头同时后拉并带一次震动，落定为旋涡星系。
- *   衔接  星系由内向外引力坍缩，卷入涡旋，重组为黑洞吸积盘（事件视界 / 光子环 / 透镜光晕）。
+ *   开场  暗处一团暖色星云慢慢亮起，旋转着舒展成旋涡星系，镜头平缓后拉 —— 没有闪白和震动。
+ *   衔接  粒子被甩出成一个巨大的旋转星云壳，绕大半圈后收拢为黑洞吸积盘（事件视界 / 光子环 / 透镜光晕）。
  *   终章  吸积盘物质凝聚成一颗带环行星：程序化大陆、晨昏线、夜侧城市灯光、大气辉边、环影。
  *
  * 形态进度直接绑定滚动位置并做阻尼，滚到一半就停在半途 —— 过渡本身就是内容。
  */
 
-const ease = (t: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 3)
+const smoothstep = (t: number) => {
+  const x = Math.min(1, Math.max(0, t))
+  return x * x * (3 - 2 * x)
+}
 
-const BANG = 0.9
+const INTRO_END = 4.6
 
 export function CosmosField() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -200,28 +202,18 @@ export function CosmosField() {
       tilt.y += (tilt.ty - tilt.y) * Math.min(1, dt * 1.8)
       ripple.age += dt
 
-      // 开场时间线
-      const tb = intro - BANG
+      // 开场时间线：柔光核心慢慢亮起又褪去，镜头平缓后拉
       let cam = 3.4
       let core = 0
-      let flash = 0
-      let shock = 0
-      let shockA = 0
-      let streak = 0
-      let shake = 0
-      if (intro < 6) {
-        if (tb < 0) {
-          core = Math.min(1, intro / BANG) * (0.55 + 0.45 * Math.sin(intro * 34))
-          cam = 1.7
-        } else {
-          core = 2.2 * Math.exp(-tb * 3.2)
-          flash = 0.95 * Math.exp(-tb * 4.5)
-          shock = 2.6 * (1 - Math.exp(-tb * 1.5))
-          shockA = 0.9 * Math.exp(-tb * 1.2)
-          streak = 1.3 * Math.exp(-tb * 2.2)
-          shake = 0.09 * Math.exp(-tb * 4) * Math.sin(tb * 70)
-          cam = 1.7 + (3.4 - 1.7) * ease(tb / 3.6)
-        }
+      const flash = 0
+      const shock = 0
+      const shockA = 0
+      const streak = 0
+      const shake = 0
+      if (intro < INTRO_END) {
+        const rise = Math.min(1, intro / 1.4)
+        core = 0.32 * rise * rise * (1 - smoothstep((intro - 1.2) / 2.6))
+        cam = 2.5 + (3.4 - 2.5) * smoothstep(intro / INTRO_END)
       }
 
       // 叠加层中心随形态迁移

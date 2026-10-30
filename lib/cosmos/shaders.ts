@@ -40,10 +40,10 @@ mat3 rotZ(float a) { float c = cos(a), s = sin(a); return mat3(c, s, 0.0, -s, c,
 void galaxy(float burst, out vec3 p, out vec3 col, out float br) {
   float kind = floor(aG.w);
   float r = aG.x;
-  // 开场：大爆炸后旋臂由「拧紧」状态旋开
+  // 开场：旋臂从轻轻拧紧的状态缓慢舒展开
   float unwind = 1.0 - burst;
-  unwind = unwind * unwind * 7.0 / (r + 0.4);
-  float a = aG.y - uTime * (0.028 + 0.02 / (r + 0.35)) - unwind;
+  unwind = unwind * unwind * 3.2 / (r + 0.4);
+  float a = aG.y - uTime * (0.085 + 0.06 / (r + 0.35)) - unwind;
   p = vec3(r * cos(a), aG.z, r * sin(a));
   p = rotZ(-0.42) * rotX(0.86) * p;
 
@@ -67,7 +67,7 @@ void disc(out vec3 p, out vec3 col, out float br, out float vis) {
 
   if (kind < 0.5 || kind > 3.5) {
     // 开普勒转速：内圈快、外圈慢
-    float w = kind > 3.5 ? 0.03 : 0.2 * pow(r, -1.5);
+    float w = kind > 3.5 ? 0.08 : 0.55 * pow(r, -1.5);
     float a = aD.y - uTime * w;
     p = T * vec3(r * cos(a), aD.z, r * sin(a));
     vec3 v = T * vec3(sin(a), 0.0, -cos(a));
@@ -75,14 +75,14 @@ void disc(out vec3 p, out vec3 col, out float br, out float vis) {
     br = b * (1.0 - 0.8 * v.z);
     col = mix(hot, warm, smoothstep(0.5, 1.6, r));
   } else if (kind < 1.5) {
-    float a = aD.y + uTime * 0.04;
+    float a = aD.y + uTime * 0.12;
     p = vec3(r * cos(a), r * sin(a) * 0.94, 0.0);
     br = b * (1.0 + 0.75 * cos(a));
     col = mix(hot, warm, smoothstep(0.45, 0.8, r));
   } else if (kind < 2.5) {
-    float f = fract(uTime * 0.04 + aS.x);
+    float f = fract(uTime * 0.08 + aS.x);
     float rr = mix(2.6, 0.46, f * f);
-    float a = aD.y - f * 7.0 - uTime * 0.05;
+    float a = aD.y - f * 7.0 - uTime * 0.15;
     p = T * vec3(rr * cos(a), aD.z * (1.0 - f), rr * sin(a));
     br = b * smoothstep(0.0, 0.15, f) * (1.0 - smoothstep(0.85, 1.0, f)) * (0.35 + f);
     col = mix(hot, warm, 1.0 - f);
@@ -110,7 +110,7 @@ void planet(out vec3 p, out vec3 col, out float br, out float vis) {
 
   if (kind < 3.5) {
     float rad = length(aP.xyz);
-    vec3 n = axis * (rotY(uTime * 0.07) * (aP.xyz / rad));
+    vec3 n = axis * (rotY(uTime * 0.22) * (aP.xyz / rad));
     p = n * rad;
     float facing = -n.z;
     float lit = dot(n, L);
@@ -134,7 +134,7 @@ void planet(out vec3 p, out vec3 col, out float br, out float vis) {
     }
   } else if (kind < 4.5) {
     float r = aP.x;
-    float a = aP.y - uTime * 0.06 * pow(r, -1.5);
+    float a = aP.y - uTime * 0.2 * pow(r, -1.5);
     p = axis * vec3(r * cos(a), aP.z, r * sin(a));
     vis = 1.0 - occluded(p);
     // 行星投在环上的影子
@@ -143,7 +143,7 @@ void planet(out vec3 p, out vec3 col, out float br, out float vis) {
     col = vec3(0.76, 0.83, 0.96);
     br = b * (1.0 - 0.88 * shadow) * 0.8;
   } else {
-    float a = aP.z + uTime * 0.32;
+    float a = aP.z + uTime * 0.6;
     p = axis * rotX(aP.y) * vec3(aP.x * cos(a), 0.0, aP.x * sin(a));
     vis = 1.0 - occluded(p);
     col = vec3(0.45, 0.92, 1.0);
@@ -163,9 +163,9 @@ void main() {
     pos = aG.xyz;
     col = mix(vec3(0.7, 0.8, 1.0), vec3(1.0, 0.9, 0.8), aS.x);
     br = aG.w * (0.6 + 0.4 * sin(uTime * 1.7 + aS.x * 60.0));
-    br *= smoothstep(1.4, 3.6, uIntro);
+    br *= smoothstep(0.4, 3.4, uIntro);
   } else {
-    float burst = clamp((uIntro - 0.9 - aS.y * 0.3) / 2.6, 0.0, 1.0);
+    float burst = clamp((uIntro - 0.25 - aS.y * 0.7) / 3.4, 0.0, 1.0);
 
     vec3 pG; vec3 cG; float bG;
     galaxy(burst, pG, cG, bG);
@@ -174,40 +174,55 @@ void main() {
     vec3 pP; vec3 cP; float bP; float vP;
     planet(pP, cP, bP, vP);
 
-    // 错峰：G→D 由内向外坍缩；D→P 随机凝聚
-    float d1 = clamp(aG.x / 3.0, 0.0, 1.0) * 0.4 + aS.x * 0.12;
-    float k1 = smoothstep(0.0, 1.0, clamp((uProg - d1) / 0.48, 0.0, 1.0));
-    float d2 = aS.y * 0.45;
-    float k2 = smoothstep(0.0, 1.0, clamp((uProg - 1.0 - d2) / 0.55, 0.0, 1.0));
+    // 错峰：G→D 由内向外被卷走；D→P 随机凝聚
+    float d1 = clamp(aG.x / 3.0, 0.0, 1.0) * 0.35 + aS.x * 0.15;
+    float k1 = smoothstep(0.0, 1.0, clamp((uProg - d1) / 0.5, 0.0, 1.0));
+    float d2 = aS.y * 0.28;
+    float k2 = smoothstep(0.0, 1.0, clamp((uProg - 1.0 - d2) / 0.66, 0.0, 1.0));
 
     pos = mix(mix(pG, pD, k1), pP, k2);
     col = mix(mix(cG, cD, k1), cP, k2);
     br = mix(mix(bG, bD * vD, k1), bP * vP, k2);
-    off = mix(mix(uOffG, uOffD, k1), uOffP, k2);
+    // 屏幕偏移用统一进度插值，避免不同粒子各自错位导致整团被横向抹开
+    float g1 = smoothstep(0.0, 1.0, clamp(uProg, 0.0, 1.0));
+    float g2 = smoothstep(0.0, 1.0, clamp(uProg - 1.0, 0.0, 1.0));
+    off = mix(mix(uOffG, uOffD, g1), uOffP, g2);
 
-    // 过渡湍流：粒子在途中被卷入涡旋，带一点能量增亮
-    float tw = sin(PI * k1) + sin(PI * k2);
+    // 宇宙风暴式过渡：粒子被甩出成一个巨大的旋转星云壳，绕大半圈后再收拢到新形态
+    float a1 = sin(PI * k1);
+    float a2 = sin(PI * k2);
+    float tw = a1 + a2;
     if (tw > 0.001) {
-      pos = rotY(tw * (0.7 + aS.y * 1.6)) * pos;
+      // 差速旋转：内圈转得更多 → 整体被拧成一个清晰的巨大旋涡，而不是随机散开的雾
+      float rl = length(pos.xz);
+      float diff = 1.8 + 2.4 / (rl + 0.35) + aS.y * 0.6;
+      float spin = (a1 - a2 * 0.9) * diff;
+      pos = rotX(tw * 0.55) * rotY(spin) * pos;
+      vec3 dir = normalize(pos + vec3(0.0001, 0.0002, 0.0));
+      float swell = a1 * (0.45 + aS.x * 0.75) + a2 * (0.12 + aS.x * 0.3);
+      pos += dir * swell;
+      pos.y += a1 * (aS.y - 0.5) * 0.7;
       vec3 nz = vec3(
-        sin(aS.x * 91.0 + uTime * 0.6),
-        sin(aS.y * 77.0 + uTime * 0.5),
-        sin((aS.x + aS.y) * 53.0 + uTime * 0.4)
+        sin(aS.x * 91.0 + uTime * 1.1),
+        sin(aS.y * 77.0 + uTime * 0.9),
+        sin((aS.x + aS.y) * 53.0 + uTime * 0.8)
       );
-      pos += nz * tw * 0.32;
-      br *= 1.0 + tw * 0.45;
-      col = mix(col, vec3(0.6, 0.85, 1.0), tw * 0.3);
+      pos += nz * (a1 * 0.26 + a2 * 0.12);
+      br *= 1.0 + tw * 1.1;
+      vec3 storm = mix(vec3(0.45, 0.78, 1.0), vec3(1.0, 0.72, 0.42), aS.x * a1 + (1.0 - aS.x) * a2 * 0.3);
+      col = mix(col, storm, min(1.0, tw) * 0.55);
     }
 
-    // 开场：奇点 → 大爆炸
+    // 开场：暗处一团柔和星云慢慢亮起、舒展成旋涡星系 —— 没有闪白和冲击
     if (uIntro < 6.0) {
-      float e = 1.0 - pow(1.0 - burst, 4.0);
-      float over = 1.0 + 0.55 * sin(PI * e) * (1.0 - burst);
-      vec3 dir = normalize(vec3(aS.x - 0.5, aS.y - 0.5, fract(aS.x * 13.7 + aS.y * 3.1) - 0.5) + 0.0001);
-      vec3 ball = dir * 0.022 * (1.0 + 0.5 * sin(uIntro * 26.0 + aS.x * 20.0));
-      pos = mix(ball, pos * over, e);
-      br *= burst > 0.0 ? 1.0 + 3.5 * (1.0 - e) : 0.2;
-      col = mix(vec3(0.85, 0.95, 1.0), col, e);
+      float e = burst * burst * (3.0 - 2.0 * burst);
+      vec3 dir = normalize(vec3(aS.x - 0.5, (aS.y - 0.5) * 0.55, fract(aS.x * 13.7 + aS.y * 3.1) - 0.5) + 0.0001);
+      float rr = 0.12 + 0.38 * pow(fract(aS.x * 7.3 + aS.y * 1.9), 0.6);
+      vec3 cloud = rotY(uIntro * 0.35) * (dir * rr);
+      pos = mix(cloud, pos, e);
+      float fadeIn = smoothstep(0.0, 1.6, uIntro);
+      br *= fadeIn * (0.55 + 0.45 * e) * (1.0 + 0.5 * sin(PI * e));
+      col = mix(vec3(0.95, 0.86, 0.74), col, e);
     }
 
     pos *= uScale;
