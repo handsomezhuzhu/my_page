@@ -102,7 +102,7 @@ git checkout traditional  # 繁体版
 │   └── page.tsx             # 首页
 ├── components/
 │   ├── home-shell.tsx       # 滚动驱动粒子形态切换
-│   ├── particle-field.tsx   # 粒子形态变换场（像素光栅器）
+│   ├── cosmos-field.tsx     # 粒子宇宙（WebGL：大爆炸 → 吸积盘 → 行星）
 │   ├── site-header.tsx      # 顶部栏
 │   ├── hero-section.tsx     # 首屏
 │   ├── motto-section.tsx    # 座右铭
@@ -214,7 +214,7 @@ git checkout traditional  # 繁體版
 │   └── page.tsx             # 首頁
 ├── components/
 │   ├── home-shell.tsx       # 捲動驅動粒子形態切換
-│   ├── particle-field.tsx   # 粒子形態變換場（像素光柵器）
+│   ├── cosmos-field.tsx     # 粒子宇宙（WebGL：大爆炸 → 吸積盤 → 行星）
 │   ├── site-header.tsx      # 頂部欄
 │   ├── hero-section.tsx     # 首屏
 │   ├── motto-section.tsx    # 座右銘
