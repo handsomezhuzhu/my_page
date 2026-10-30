@@ -6,7 +6,7 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
-    "start": "next start"
+    "start": "npx serve out"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

@@ -4,17 +4,27 @@ import { useEffect, useState } from "react"
 
 export function SiteHeader() {
   const [time, setTime] = useState("")
+  const [offset, setOffset] = useState("UTC+8")
 
   useEffect(() => {
-    const update = () =>
+    const update = () => {
+      const now = new Date()
       setTime(
-        new Date().toLocaleTimeString("zh-CN", {
+        now.toLocaleTimeString("zh-CN", {
           hour12: false,
           hour: "2-digit",
           minute: "2-digit",
           second: "2-digit",
         }),
       )
+      // 标签跟随访客本地时区，与上方时间一秒一同步（含小数时区，如 UTC+5:30）
+      const offsetMinutes = -now.getTimezoneOffset()
+      const sign = offsetMinutes >= 0 ? "+" : "-"
+      const abs = Math.abs(offsetMinutes)
+      const h = Math.floor(abs / 60)
+      const m = abs % 60
+      setOffset(`UTC${sign}${h}${m ? `:${String(m).padStart(2, "0")}` : ""}`)
+    }
     update()
     const id = setInterval(update, 1000)
     return () => clearInterval(id)
@@ -35,7 +45,7 @@ export function SiteHeader() {
         <span className="hidden sm:inline">Personal&nbsp;Homepage</span>
         <span className="hidden h-3 w-px bg-border sm:inline" />
         <span suppressHydrationWarning>{time || "00:00:00"}</span>
-        <span>UTC+8</span>
+        <span>{offset}</span>
       </div>
     </header>
   )
