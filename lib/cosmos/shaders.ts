@@ -45,7 +45,7 @@ void galaxy(float burst, out vec3 p, out vec3 col, out float br) {
   unwind = unwind * unwind * 3.2 / (r + 0.4);
   float a = aG.y - uTime * (0.085 + 0.06 / (r + 0.35)) + unwind;
   p = vec3(r * cos(a), aG.z, r * sin(a));
-  p = rotZ(-0.42) * rotX(0.86) * p;
+  p = rotZ(-0.42) * rotX(0.86) * p * 1.32;
 
   vec3 core = vec3(1.0, 0.84, 0.62);
   vec3 arm = vec3(0.5, 0.66, 1.0);
@@ -72,7 +72,7 @@ void disc(out vec3 p, out vec3 col, out float br, out float vis) {
     p = T * vec3(r * cos(a), aD.z, r * sin(a));
     vec3 v = T * vec3(sin(a), 0.0, -cos(a));
     // 相对论性多普勒增亮：朝向相机运动的一侧更亮
-    br = b * (1.0 - 0.8 * v.z);
+    br = b * (1.0 - 0.55 * v.z);
     col = mix(hot, warm, smoothstep(0.5, 1.6, r));
   } else if (kind < 1.5) {
     float a = aD.y + uTime * 0.12;
@@ -91,6 +91,9 @@ void disc(out vec3 p, out vec3 col, out float br, out float vis) {
     br = b * (1.0 + 0.5 * cos(aD.y));
     col = hot;
   }
+
+  // 压暗高亮区，避免盖住叠在上面的文字：越靠近中心压得越多
+  br *= 0.55 * mix(0.6, 1.0, smoothstep(0.45, 1.4, length(p.xy)));
 
   // 事件视界：位于黑洞后方、落在阴影圆内的粒子被吞没
   if (p.z > 0.0) vis = smoothstep(0.36, 0.41, length(p.xy));
