@@ -797,7 +797,7 @@ export function ParticleField({ shape }: { shape: ParticleShape }) {
         }
       }
     }
-    morphRef.current = () => morph(true)
+    morphRef.current = () => morph(!reduced)
 
     /**
      * 入场（仅页面打开时调用一次）：
