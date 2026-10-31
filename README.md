@@ -78,6 +78,15 @@ server {
    - **Build output directory**: `out`
 4. 点击 **Save and Deploy**，之后每次推送 `traditional` 分支即自动更新
 
+#### 双版本预览（GitHub Actions → GitHub Pages）
+
+推送 `main` 或 `traditional` 会触发 `.github/workflows/preview.yml`（在 instabox CI 上运行，需先在 instabox Dashboard 的 CI 页 Connect GitHub）：
+
+- 分别构建两个分支的生产版产物，以 Actions Artifacts 提供下载：`out`（简体，可直接上传服务器）、`out-traditional`（繁体）
+- 同时构建带 basePath 的预览版并部署到 GitHub Pages：
+  - 简体预览：https://handsomezhuzhu.github.io/my_page/
+  - 繁体预览：https://handsomezhuzhu.github.io/my_page/traditional/
+
 ### 切换语言版本
 
 ```bash
@@ -189,6 +198,15 @@ server {
    - **Build command**: `npm run build`
    - **Build output directory**: `out`
 4. 點擊 **Save and Deploy**，之後每次推送 `traditional` 分支即自動更新
+
+#### 雙版本預覽（GitHub Actions → GitHub Pages）
+
+推送 `main` 或 `traditional` 會觸發 `.github/workflows/preview.yml`（在 instabox CI 上運行，需先在 instabox Dashboard 的 CI 頁 Connect GitHub）：
+
+- 分別構建兩個分支的生產版產物，以 Actions Artifacts 提供下載：`out`（簡體，可直接上傳伺服器）、`out-traditional`（繁體）
+- 同時構建帶 basePath 的預覽版並部署到 GitHub Pages：
+  - 簡體預覽：https://handsomezhuzhu.github.io/my_page/
+  - 繁體預覽：https://handsomezhuzhu.github.io/my_page/traditional/
 
 ### 切換語言版本
 
