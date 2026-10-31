@@ -1,249 +1,179 @@
-# Simon 个人主页 · Simon 個人主頁
+<div align="center">
 
-[简体中文](#简体中文) | [繁體中文](#繁體中文)
+# SIMON ZHU
+
+**个人主页 · 個人主頁 —— 一颗粒子构成的宇宙**
+
+大爆炸 → 星系 → 黑洞吸积盘 → 点阵行星，滚动驱动的 WebGL 粒子形态变换
+
+<br>
+
+[![Preview & Build](https://github.com/handsomezhuzhu/my_page/actions/workflows/preview.yml/badge.svg)](https://github.com/handsomezhuzhu/my_page/actions/workflows/preview.yml)
+[![简体预览](https://img.shields.io/badge/简体预览-handsomezhuzhu.github.io-0a1628?style=for-the-badge&logo=githubpages&logoColor=7cc5ff)](https://handsomezhuzhu.github.io/my_page/)
+[![繁體預覽](https://img.shields.io/badge/繁體預覽-/traditional-0a1628?style=for-the-badge&logo=githubpages&logoColor=ffd69e)](https://handsomezhuzhu.github.io/my_page/traditional/)
+
+[简体中文](#简体中文) · [繁體中文](#繁體中文)
+
+![Next.js 16](https://img.shields.io/badge/Next.js_16-black?style=flat-square&logo=nextdotjs)
+![React 19](https://img.shields.io/badge/React_19-20232a?style=flat-square&logo=react&logoColor=61dafb)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178c6?style=flat-square&logo=typescript&logoColor=white)
+![Tailwind CSS 4](https://img.shields.io/badge/Tailwind_CSS_4-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white)
+![WebGL](https://img.shields.io/badge/WebGL_手写粒子渲染-990000?style=flat-square&logo=webgl&logoColor=white)
+
+</div>
 
 ---
 
 ## 简体中文
 
-一个简约高级风格的个人主页，基于 Next.js 构建，滚动驱动粒子形态变换。
+### ✦ 概览
 
-本仓库通过分支维护两个语言版本，除字体、文案与页脚备案信息外完全一致：
+一个深色极简风格的个人主页。首屏之外全是同一个粒子系统：**26 万颗粒子在单个 WebGL 顶点着色器里插值运动**，跟着滚动在三种宇宙形态之间坍缩与重组，没有一帧 Canvas 画死的东西。
 
-| 分支 | 语言 | 字体 | 页脚备案 | 部署方式 |
+| 预览 | 地址 |
+| --- | --- |
+| 简体（zh-CN） | <https://handsomezhuzhu.github.io/my_page/> |
+| 繁体（zh-HK） | <https://handsomezhuzhu.github.io/my_page/traditional/> |
+
+### ✦ 粒子宇宙
+
+每个粒子同时持有三份形态坐标（每粒子 16 个 float 交错打包，`w` 分量复用编码类别+亮度），GPU 按滚动进度原地插值——形态切换是**有方向的引力坍缩**，不是随机换位的溶解。
+
+| 形态 | 章节 | 组成 |
+| --- | --- | --- |
+| 🌌 `G` 星系 | 首屏 | 对数双旋臂 + 暖色核球 + 青色恒星形成区 + 尘埃盘 |
+| 🕳️ `D` 吸积盘 | 座右铭 | 事件视界 + 光子环 + 引力透镜光晕 + 多普勒增亮盘 |
+| 🪐 `P` 行星 | 链接 | 程序化大陆点阵 + 夜侧城市灯光 + 大气辉边 + 行星环 |
+
+另有：大爆炸闪光开场（冲击波环 + 核心辉光）、点击独立涟漪（连点不打断前一波）、移动端水平滑动倾斜、遵循 `prefers-reduced-motion`。
+
+### ✦ 双分支语言策略
+
+| 分支 | 语言 | 字体 | 页脚备案 | 线上部署 |
 | --- | --- | --- | --- | --- |
-| `main` | 简体（zh-CN） | Noto Serif SC | 显示 ICP / 公安备案 | 手动构建后上传 `out` 目录到服务器 |
-| `traditional` | 繁体（zh-HK） | Noto Serif TC | 不显示备案 | 推送后由 Cloudflare Pages 自动构建部署 |
+| `main` | 简体 | Noto Serif SC | 显示 ICP / 公安备案 | 构建后上传 `out` 到自有服务器 |
+| `traditional` | 繁体 | Noto Serif TC | 不显示备案 | Cloudflare Pages 推送自动部署 |
 
-### 功能特点
+两分支除字体、文案、备案外完全一致。共享代码在 `main` 上提交，再 `git checkout traditional && git merge main` 同步。
 
-- 纯色简约设计，深色衬线美学
-- 滚动驱动的粒子形态变换（无限回廊 / 墨环 / 点阵地球）
-- 自建像素光栅器渲染数万粒子，自适应画质
-- 光标光晕效果、按钮悬停微交互
-- 响应式布局
-- 备案信息可通过配置显示/隐藏
-
-### 本地开发
+### ✦ 快速开始
 
 ```bash
 npm install
-npm run dev
+npm run dev      # http://localhost:3000
+npm run build    # 静态产物 → out/
+npx serve out    # 本地预览构建产物
 ```
 
-打开 http://localhost:3000 查看效果。
+### ✦ 构建与 CI
 
-### 构建静态页面
+推送 `main` 或 `traditional` 自动触发 [GitHub Actions](.github/workflows/preview.yml)（instabox CI runner）：
 
-```bash
-npm run build
-```
+| 输出 | 内容 |
+| --- | --- |
+| Artifact `out` | 简体生产构建（无 basePath，可直接上传服务器） |
+| Artifact `out-traditional` | 繁体生产构建 |
+| GitHub Pages | 两个预览地址见上方徽章 |
 
-构建完成后，静态文件会生成在 `out` 目录中。可使用 `npx serve out` 本地预览。
+`next.config.mjs` 的 `basePath` 由 `BASEPATH` 环境变量控制，本地开发为空、无感知。
 
-### 部署
-
-#### 简体版（main）→ 自有服务器
-
-```bash
-npm run build
-scp -r out/* 用户名@服务器IP:/var/www/html/
-# 或使用 rsync（推荐，只上传变化部分）
-rsync -avz --delete out/ 用户名@服务器IP:/var/www/html/
-```
-
-Nginx 配置示例：
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    root /var/www/html;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-}
-```
-
-#### 繁体版（traditional）→ Cloudflare Pages
-
-1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)
-2. 进入 **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
-3. 选择本仓库，构建设置：
-   - **Production branch**: `traditional`
-   - **Framework preset**: `Next.js (Static HTML Export)`（或 None + 手动配置）
-   - **Build command**: `npm run build`
-   - **Build output directory**: `out`
-4. 点击 **Save and Deploy**，之后每次推送 `traditional` 分支即自动更新
-
-#### 双版本预览（GitHub Actions → GitHub Pages）
-
-推送 `main` 或 `traditional` 会触发 `.github/workflows/preview.yml`（在 instabox CI 上运行，需先在 instabox Dashboard 的 CI 页 Connect GitHub）：
-
-- 分别构建两个分支的生产版产物，以 Actions Artifacts 提供下载：`out`（简体，可直接上传服务器）、`out-traditional`（繁体）
-- 同时构建带 basePath 的预览版并部署到 GitHub Pages：
-  - 简体预览：https://handsomezhuzhu.github.io/my_page/
-  - 繁体预览：https://handsomezhuzhu.github.io/my_page/traditional/
-
-### 切换语言版本
-
-```bash
-git checkout main         # 简体版
-git checkout traditional  # 繁体版
-```
-
-修改公共代码时建议：先在 `main` 上提交，再 `git checkout traditional && git merge main` 同步，繁体分支只保留语言相关的差异提交。
-
-### 配置说明
-
-- 备案信息：编辑 `lib/config.ts`，`showBeian` 控制是否显示备案
-- 导航链接：编辑 `components/navigation-links.tsx`
-- 座右铭与文案：编辑 `components/hero-section.tsx`、`components/motto-section.tsx`
-
-### 目录结构
+### ✦ 目录结构
 
 ```
-├── app/
-│   ├── globals.css          # 全局样式和动画
-│   ├── layout.tsx           # 页面布局（字体 / lang / metadata）
-│   └── page.tsx             # 首页
+├── app/                        # 页面（layout / page / globals.css）
 ├── components/
-│   ├── home-shell.tsx       # 滚动驱动粒子形态切换
-│   ├── cosmos-field.tsx     # 粒子宇宙（WebGL：大爆炸 → 吸积盘 → 行星）
-│   ├── site-header.tsx      # 顶部栏
-│   ├── hero-section.tsx     # 首屏
-│   ├── motto-section.tsx    # 座右铭
-│   ├── navigation-links.tsx # 导航链接
-│   ├── footer.tsx           # 页脚（备案）
-│   └── reveal.tsx           # 滚动淡入容器
-├── lib/
-│   └── config.ts            # 站点配置
-└── public/                  # 静态资源
+│   ├── cosmos-field.tsx        # 粒子宇宙调度（开场动画 / 滚动 / 涟漪）
+│   ├── home-shell.tsx          # 页面骨架与章节切换
+│   └── …（header / hero / motto / links / footer）
+├── lib/cosmos/
+│   ├── generate.ts             # 三形态粒子数据烘焙（星系 / 吸积盘 / 行星）
+│   └── shaders.ts              # GLSL：插值 + 配色 + 后期处理
+└── .github/workflows/          # CI：双分支构建 + Pages 预览
 ```
+
+### ✦ 配置说明
+
+- 备案信息：`lib/config.ts` 的 `showBeian` 开关
+- 导航链接：`components/navigation-links.tsx`
+- 文案：`components/hero-section.tsx`、`components/motto-section.tsx`
 
 ---
 
 ## 繁體中文
 
-一個簡約高級風格的個人主頁，基於 Next.js 構建，捲動驅動粒子形態變換。
+### ✦ 概覽
 
-本倉庫透過分支維護兩個語言版本，除字體、文案與頁尾備案資訊外完全一致：
+一個深色極簡風格的個人主頁。首屏之外全是同一個粒子系統：**26 萬顆粒子在單個 WebGL 頂點著色器裡插值運動**，跟著捲動在三種宇宙形態之間坍縮與重組，沒有一幀 Canvas 畫死的東西。
 
-| 分支 | 語言 | 字體 | 頁尾備案 | 部署方式 |
+| 預覽 | 地址 |
+| --- | --- |
+| 简体（zh-CN） | <https://handsomezhuzhu.github.io/my_page/> |
+| 繁體（zh-HK） | <https://handsomezhuzhu.github.io/my_page/traditional/> |
+
+### ✦ 粒子宇宙
+
+每個粒子同時持有三份形態座標（每粒子 16 個 float 交錯打包，`w` 分量複用編碼類別+亮度），GPU 按捲動進度原地插值——形態切換是**有方向的引力坍縮**，不是隨機換位的溶解。
+
+| 形態 | 章節 | 組成 |
+| --- | --- | --- |
+| 🌌 `G` 星系 | 首屏 | 對數雙旋臂 + 暖色核球 + 青色恒星形成區 + 塵埃盤 |
+| 🕳️ `D` 吸積盤 | 座右銘 | 事件視界 + 光子環 + 引力透鏡光暈 + 都卜勒增亮盤 |
+| 🪐 `P` 行星 | 連結 | 程序化大陸點陣 + 夜側城市燈光 + 大氣輝邊 + 行星環 |
+
+另有：大爆炸閃光開場（衝擊波環 + 核心輝光）、點擊獨立漣漪（連點不打斷前一波）、行動端水平滑動傾斜、遵循 `prefers-reduced-motion`。
+
+### ✦ 雙分支語言策略
+
+| 分支 | 語言 | 字體 | 頁尾備案 | 線上部署 |
 | --- | --- | --- | --- | --- |
-| `main` | 簡體（zh-CN） | Noto Serif SC | 顯示 ICP / 公安備案 | 手動構建後上傳 `out` 目錄到伺服器 |
-| `traditional` | 繁體（zh-HK） | Noto Serif TC | 不顯示備案 | 推送後由 Cloudflare Pages 自動構建部署 |
+| `main` | 簡體 | Noto Serif SC | 顯示 ICP / 公安備案 | 構建後上傳 `out` 到自有伺服器 |
+| `traditional` | 繁體 | Noto Serif TC | 不顯示備案 | Cloudflare Pages 推送自動部署 |
 
-### 功能特點
+兩分支除字體、文案、備案外完全一致。共享程式碼在 `main` 上提交，再 `git checkout traditional && git merge main` 同步。
 
-- 純色簡約設計，深色襯線美學
-- 捲動驅動的粒子形態變換（無限迴廊 / 墨環 / 點陣地球）
-- 自建像素光柵器渲染數萬粒子，自適應畫質
-- 游標光暈效果、按鈕懸停微互動
-- 響應式佈局
-- 備案資訊可透過設定顯示/隱藏
-
-### 本地開發
+### ✦ 快速開始
 
 ```bash
 npm install
-npm run dev
+npm run dev      # http://localhost:3000
+npm run build    # 靜態產物 → out/
+npx serve out    # 本地預覽構建產物
 ```
 
-開啟 http://localhost:3000 檢視效果。
+### ✦ 構建與 CI
 
-### 構建靜態頁面
+推送 `main` 或 `traditional` 自動觸發 [GitHub Actions](.github/workflows/preview.yml)（instabox CI runner）：
 
-```bash
-npm run build
-```
+| 輸出 | 內容 |
+| --- | --- |
+| Artifact `out` | 簡體生產構建（無 basePath，可直接上傳伺服器） |
+| Artifact `out-traditional` | 繁體生產構建 |
+| GitHub Pages | 兩個預覽地址見上方徽章 |
 
-構建完成後，靜態檔案會產生在 `out` 目錄中。可使用 `npx serve out` 本地預覽。
+`next.config.mjs` 的 `basePath` 由 `BASEPATH` 環境變數控制，本地開發為空、無感知。
 
-### 部署
-
-#### 簡體版（main）→ 自有伺服器
-
-```bash
-npm run build
-scp -r out/* 使用者名稱@伺服器IP:/var/www/html/
-# 或使用 rsync（推薦，只上傳變化部分）
-rsync -avz --delete out/ 使用者名稱@伺服器IP:/var/www/html/
-```
-
-Nginx 設定範例：
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    root /var/www/html;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-}
-```
-
-#### 繁體版（traditional）→ Cloudflare Pages
-
-1. 登入 [Cloudflare Dashboard](https://dash.cloudflare.com/)
-2. 進入 **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
-3. 選擇本倉庫，構建設定：
-   - **Production branch**: `traditional`
-   - **Framework preset**: `Next.js (Static HTML Export)`（或 None + 手動設定）
-   - **Build command**: `npm run build`
-   - **Build output directory**: `out`
-4. 點擊 **Save and Deploy**，之後每次推送 `traditional` 分支即自動更新
-
-#### 雙版本預覽（GitHub Actions → GitHub Pages）
-
-推送 `main` 或 `traditional` 會觸發 `.github/workflows/preview.yml`（在 instabox CI 上運行，需先在 instabox Dashboard 的 CI 頁 Connect GitHub）：
-
-- 分別構建兩個分支的生產版產物，以 Actions Artifacts 提供下載：`out`（簡體，可直接上傳伺服器）、`out-traditional`（繁體）
-- 同時構建帶 basePath 的預覽版並部署到 GitHub Pages：
-  - 簡體預覽：https://handsomezhuzhu.github.io/my_page/
-  - 繁體預覽：https://handsomezhuzhu.github.io/my_page/traditional/
-
-### 切換語言版本
-
-```bash
-git checkout main         # 簡體版
-git checkout traditional  # 繁體版
-```
-
-修改公共程式碼時建議：先在 `main` 上提交，再 `git checkout traditional && git merge main` 同步，繁體分支只保留語言相關的差異提交。
-
-### 設定說明
-
-- 備案資訊：編輯 `lib/config.ts`，`showBeian` 控制是否顯示備案
-- 導覽連結：編輯 `components/navigation-links.tsx`
-- 座右銘與文案：編輯 `components/hero-section.tsx`、`components/motto-section.tsx`
-
-### 目錄結構
+### ✦ 目錄結構
 
 ```
-├── app/
-│   ├── globals.css          # 全域樣式和動畫
-│   ├── layout.tsx           # 頁面佈局（字體 / lang / metadata）
-│   └── page.tsx             # 首頁
+├── app/                        # 頁面（layout / page / globals.css）
 ├── components/
-│   ├── home-shell.tsx       # 捲動驅動粒子形態切換
-│   ├── cosmos-field.tsx     # 粒子宇宙（WebGL：大爆炸 → 吸積盤 → 行星）
-│   ├── site-header.tsx      # 頂部欄
-│   ├── hero-section.tsx     # 首屏
-│   ├── motto-section.tsx    # 座右銘
-│   ├── navigation-links.tsx # 導覽連結
-│   ├── footer.tsx           # 頁尾（備案）
-│   └── reveal.tsx           # 捲動淡入容器
-├── lib/
-│   └── config.ts            # 站點設定
-└── public/                  # 靜態資源
+│   ├── cosmos-field.tsx        # 粒子宇宙調度（開場動畫 / 捲動 / 漣漪）
+│   ├── home-shell.tsx          # 頁面骨架與章節切換
+│   └── …（header / hero / motto / links / footer）
+├── lib/cosmos/
+│   ├── generate.ts             # 三形態粒子資料烘焙（星系 / 吸積盤 / 行星）
+│   └── shaders.ts              # GLSL：插值 + 配色 + 後期處理
+└── .github/workflows/          # CI：雙分支構建 + Pages 預覽
 ```
+
+### ✦ 設定說明
+
+- 備案資訊：`lib/config.ts` 的 `showBeian` 開關
+- 導覽連結：`components/navigation-links.tsx`
+- 文案：`components/hero-section.tsx`、`components/motto-section.tsx`
 
 ---
 
-© 2025 Simon. All rights reserved.
+<div align="center">
+  <sub>© 2025–2026 Simon · 粒子宇宙的每一次坍缩都是为了下一次重组</sub>
+</div>
