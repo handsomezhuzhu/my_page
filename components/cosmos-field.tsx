@@ -143,7 +143,7 @@ export function CosmosField() {
     /* ---------------- 交互 ---------------- */
 
     const mouse = { x: 0, y: 0, s: 0, ts: 0 }
-    const tilt = { x: 0, y: 0, tx: 0, ty: 0 }
+    const tilt = { x: 0, y: 0, tx: 0, ty: 0, vx: 0, vy: 0, spring: false }
     const ripple = { x: 0, y: 0, age: 9 }
 
     const onMove = (e: PointerEvent) => {
@@ -162,10 +162,40 @@ export function CosmosField() {
       tilt.ty = 0
     }
     const onDown = (e: PointerEvent) => {
-      if (reduced) return
+      if (reduced || e.pointerType !== "mouse") return
       ripple.x = ((e.clientX / W) * 2 - 1) * aspect
       ripple.y = -((e.clientY / H) * 2 - 1)
       ripple.age = 0
+    }
+
+    // 触屏：横向拖动 = 旋转晃动（松手后弹性回摆），纵向保持原生滚动，不触发驱散
+    const touch = { x0: 0, y0: 0, axis: 0 as 0 | 1 | 2, active: false }
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0]
+      if (!t || e.touches.length > 1) return
+      touch.x0 = t.clientX
+      touch.y0 = t.clientY
+      touch.axis = 0
+      touch.active = true
+      tilt.spring = false
+    }
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0]
+      if (!touch.active || !t || reduced) return
+      const dx = t.clientX - touch.x0
+      const dy = t.clientY - touch.y0
+      if (touch.axis === 0 && Math.hypot(dx, dy) > 10) touch.axis = Math.abs(dx) > Math.abs(dy) * 1.2 ? 1 : 2
+      if (touch.axis !== 1) return
+      const k = Math.max(-1.4, Math.min(1.4, (dx / W) * 2.6))
+      tilt.tx = k
+      tilt.ty = Math.max(-0.5, Math.min(0.5, (-dy / H) * 1.2))
+    }
+    const onTouchEnd = () => {
+      if (!touch.active) return
+      touch.active = false
+      tilt.tx = 0
+      tilt.ty = 0
+      tilt.spring = true
     }
 
     /* ---------------- 主循环 ---------------- */
@@ -198,8 +228,21 @@ export function CosmosField() {
       prog = prog < 0 ? target : prog + (target - prog) * Math.min(1, dt * (reduced ? 10 : 3.2))
 
       mouse.s += (mouse.ts - mouse.s) * Math.min(1, dt * 3)
-      tilt.x += (tilt.tx - tilt.x) * Math.min(1, dt * 1.8)
-      tilt.y += (tilt.ty - tilt.y) * Math.min(1, dt * 1.8)
+      if (tilt.spring) {
+        // 欠阻尼弹簧：松手后来回晃几下再归位
+        tilt.vx += ((tilt.tx - tilt.x) * 38 - tilt.vx * 4.2) * dt
+        tilt.vy += ((tilt.ty - tilt.y) * 38 - tilt.vy * 4.2) * dt
+        tilt.x += tilt.vx * dt
+        tilt.y += tilt.vy * dt
+      } else {
+        const px = tilt.x
+        const py = tilt.y
+        const rate = touch.active ? 7 : 1.8
+        tilt.x += (tilt.tx - tilt.x) * Math.min(1, dt * rate)
+        tilt.y += (tilt.ty - tilt.y) * Math.min(1, dt * rate)
+        tilt.vx = dt > 0 ? (tilt.x - px) / dt : 0
+        tilt.vy = dt > 0 ? (tilt.y - py) / dt : 0
+      }
       ripple.age += dt
 
       // 开场时间线：柔光核心慢慢亮起又褪去，镜头平缓后拉
@@ -308,6 +351,10 @@ export function CosmosField() {
     window.addEventListener("resize", resize)
     window.addEventListener("pointermove", onMove, { passive: true })
     window.addEventListener("pointerdown", onDown, { passive: true })
+    window.addEventListener("touchstart", onTouchStart, { passive: true })
+    window.addEventListener("touchmove", onTouchMove, { passive: true })
+    window.addEventListener("touchend", onTouchEnd, { passive: true })
+    window.addEventListener("touchcancel", onTouchEnd, { passive: true })
     document.documentElement.addEventListener("mouseleave", onLeave)
     canvas.addEventListener("webglcontextlost", onLost)
     raf = requestAnimationFrame(frame)
@@ -318,6 +365,10 @@ export function CosmosField() {
       window.removeEventListener("resize", resize)
       window.removeEventListener("pointermove", onMove)
       window.removeEventListener("pointerdown", onDown)
+      window.removeEventListener("touchstart", onTouchStart)
+      window.removeEventListener("touchmove", onTouchMove)
+      window.removeEventListener("touchend", onTouchEnd)
+      window.removeEventListener("touchcancel", onTouchEnd)
       document.documentElement.removeEventListener("mouseleave", onLeave)
       canvas.removeEventListener("webglcontextlost", onLost)
       gl.deleteBuffer(pBuf)
