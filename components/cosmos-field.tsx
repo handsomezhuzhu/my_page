@@ -144,7 +144,10 @@ export function CosmosField() {
 
     const mouse = { x: 0, y: 0, s: 0, ts: 0 }
     const tilt = { x: 0, y: 0, tx: 0, ty: 0, vx: 0, vy: 0, spring: false }
-    const ripple = { x: 0, y: 0, age: 9 }
+    // 每 3 个分量一个波纹：x, y, age；age >= 1.8 表示空闲
+    const RIPPLES = 4
+    const ripples = new Float32Array(RIPPLES * 3)
+    for (let i = 0; i < RIPPLES; i++) ripples[i * 3 + 2] = 9
 
     const onMove = (e: PointerEvent) => {
       if (e.pointerType !== "mouse") return
@@ -163,9 +166,11 @@ export function CosmosField() {
     }
     const onDown = (e: PointerEvent) => {
       if (reduced || e.pointerType !== "mouse") return
-      ripple.x = ((e.clientX / W) * 2 - 1) * aspect
-      ripple.y = -((e.clientY / H) * 2 - 1)
-      ripple.age = 0
+      let slot = 0
+      for (let i = 1; i < RIPPLES; i++) if (ripples[i * 3 + 2] > ripples[slot * 3 + 2]) slot = i
+      ripples[slot * 3] = ((e.clientX / W) * 2 - 1) * aspect
+      ripples[slot * 3 + 1] = -((e.clientY / H) * 2 - 1)
+      ripples[slot * 3 + 2] = 0
     }
 
     // 触屏：横向拖动 = 旋转晃动（松手后弹性回摆），纵向保持原生滚动，不触发驱散
@@ -243,7 +248,7 @@ export function CosmosField() {
         tilt.vx = dt > 0 ? (tilt.x - px) / dt : 0
         tilt.vy = dt > 0 ? (tilt.y - py) / dt : 0
       }
-      ripple.age += dt
+      for (let i = 0; i < RIPPLES; i++) ripples[i * 3 + 2] += dt
 
       // 开场时间线：柔光核心慢慢亮起又褪去，镜头平缓后拉
       let cam = 3.4
@@ -306,7 +311,7 @@ export function CosmosField() {
       gl.uniform1f(pu.uScale, scale)
       gl.uniform2f(pu.uTilt, tilt.x + shake, tilt.y + shake * 0.6)
       gl.uniform3f(pu.uMouse, mouse.x, mouse.y, mouse.s)
-      gl.uniform3f(pu.uRipple, ripple.x, ripple.y, ripple.age)
+      gl.uniform3fv(pu.uRipple, ripples)
       gl.uniform2f(pu.uOffG, offG[0], offG[1])
       gl.uniform2f(pu.uOffD, offD[0], offD[1])
       gl.uniform2f(pu.uOffP, offP[0], offP[1])
