@@ -145,7 +145,9 @@ export function CosmosField() {
     const mouse = { x: 0, y: 0, s: 0, ts: 0 }
     const tilt = { x: 0, y: 0, tx: 0, ty: 0, vx: 0, vy: 0, spring: false }
     // 每 3 个分量一个波纹：x, y, age；age >= 1.8 表示空闲
-    const RIPPLES = 4
+    // 需与 shader 中 uRipple[16] 保持一致；16 个 × 1.8s 寿命 ≈ 每秒 9 次点击仍不会丢波纹
+    const RIPPLES = 16
+    const RIPPLE_LIFE = 1.8
     const ripples = new Float32Array(RIPPLES * 3)
     for (let i = 0; i < RIPPLES; i++) ripples[i * 3 + 2] = 9
 
@@ -166,8 +168,15 @@ export function CosmosField() {
     }
     const onDown = (e: PointerEvent) => {
       if (reduced || e.pointerType !== "mouse") return
-      let slot = 0
-      for (let i = 1; i < RIPPLES; i++) if (ripples[i * 3 + 2] > ripples[slot * 3 + 2]) slot = i
+      // 只占用已结束的空闲槽，绝不打断仍在扩散的波纹
+      let slot = -1
+      for (let i = 0; i < RIPPLES; i++) {
+        if (ripples[i * 3 + 2] >= RIPPLE_LIFE) {
+          slot = i
+          break
+        }
+      }
+      if (slot < 0) return
       ripples[slot * 3] = ((e.clientX / W) * 2 - 1) * aspect
       ripples[slot * 3 + 1] = -((e.clientY / H) * 2 - 1)
       ripples[slot * 3 + 2] = 0

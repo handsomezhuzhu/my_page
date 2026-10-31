@@ -20,7 +20,7 @@ uniform float uCam;
 uniform float uScale;
 uniform vec2 uTilt;
 uniform vec3 uMouse;
-uniform vec3 uRipple[4];
+ uniform vec3 uRipple[16];
 uniform vec2 uOffG;
 uniform vec2 uOffD;
 uniform vec2 uOffP;
@@ -264,7 +264,7 @@ void main() {
   // 多个波纹互相独立，各自扩散到寿命结束
   vec2 push = vec2(0.0);
   float glow = 0.0;
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 16; i++) {
     vec3 rp = uRipple[i];
     if (rp.z < 1.8) {
       vec2 dr = sp - rp.xy;
