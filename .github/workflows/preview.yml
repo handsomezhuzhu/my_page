@@ -1,0 +1,101 @@
+name: Preview & Build Artifacts
+
+on:
+  push:
+    branches: [main, traditional]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: instabox-medium
+    steps:
+      - name: Checkout (all branches)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ---------- main (简体) ----------
+      - name: Build main (production artifact)
+        run: |
+          git checkout main
+          rm -rf .next out
+          npm run build
+          mv out out-prod
+
+      - name: Build main (preview, /my_page)
+        env:
+          BASEPATH: /my_page
+          NEXT_PUBLIC_BASEPATH: /my_page
+        run: |
+          rm -rf .next out
+          npm run build
+          mkdir -p preview
+          cp -r out/. preview/
+          rm -rf out
+
+      # ---------- traditional (繁体) ----------
+      - name: Build traditional (production artifact)
+        run: |
+          git checkout traditional
+          rm -rf .next out
+          npm run build
+          mv out out-traditional
+
+      - name: Build traditional (preview, /my_page/traditional)
+        env:
+          BASEPATH: /my_page/traditional
+          NEXT_PUBLIC_BASEPATH: /my_page/traditional
+        run: |
+          rm -rf .next out
+          npm run build
+          mkdir -p preview/traditional
+          cp -r out/. preview/traditional/
+          rm -rf out
+
+      - name: Upload artifact: out (简体)
+        uses: actions/upload-artifact@v4
+        with:
+          name: out
+          path: out-prod
+          retention-days: 30
+
+      - name: Upload artifact: out-traditional (繁体)
+        uses: actions/upload-artifact@v4
+        with:
+          name: out-traditional
+          path: out-traditional
+          retention-days: 30
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: preview
+
+  deploy:
+    needs: build
+    runs-on: instabox-medium
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

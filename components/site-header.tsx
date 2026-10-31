@@ -32,7 +32,7 @@ export function SiteHeader() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-20 flex items-center justify-between px-6 py-5 md:px-10">
-      <a href="/" className="group flex items-center gap-3">
+      <a href={`${process.env.NEXT_PUBLIC_BASEPATH ?? ""}/`} className="group flex items-center gap-3">
         <span className="flex h-6 w-6 items-center justify-center border border-foreground/50 text-[11px] font-medium leading-none text-foreground/90 transition-colors group-hover:border-foreground">
           S
         </span>

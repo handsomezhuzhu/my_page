@@ -30,7 +30,7 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 transition-colors hover:text-muted-foreground"
               >
-                <Image src="/beian.png" alt="公安备案" width={12} height={12} className="opacity-50" />
+                <Image src={`${process.env.NEXT_PUBLIC_BASEPATH ?? ""}/beian.png`} alt="公安备案" width={12} height={12} className="opacity-50" />
                 {siteConfig.beian.psr}
               </a>
             </div>
