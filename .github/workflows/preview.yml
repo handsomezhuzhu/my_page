@@ -70,14 +70,14 @@ jobs:
           cp -r out/. preview/traditional/
           rm -rf out
 
-      - name: Upload artifact: out (简体)
+      - name: "Upload artifact: out (简体)"
         uses: actions/upload-artifact@v4
         with:
           name: out
           path: out-prod
           retention-days: 30
 
-      - name: Upload artifact: out-traditional (繁体)
+      - name: "Upload artifact: out-traditional (繁体)"
         uses: actions/upload-artifact@v4
         with:
           name: out-traditional
