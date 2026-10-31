@@ -1,6 +1,6 @@
 <div align="center">
 
-# SIMON ZHU
+<img src="docs/readme-home.jpg" alt="SIMON ZHU — 个人主页（站点首屏真实渲染）" width="100%">
 
 **个人主页 · 個人主頁 —— 一颗粒子构成的宇宙**
 
