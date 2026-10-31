@@ -20,7 +20,7 @@ uniform float uCam;
 uniform float uScale;
 uniform vec2 uTilt;
 uniform vec3 uMouse;
-uniform vec3 uRipple;
+ uniform vec3 uRipple[16];
 uniform vec2 uOffG;
 uniform vec2 uOffD;
 uniform vec2 uOffP;
@@ -261,15 +261,22 @@ void main() {
   br *= 1.0 + mf * 1.4;
 
   // 点击冲击波
-  if (uRipple.z < 1.8) {
-    vec2 dr = sp - uRipple.xy;
-    float lr = length(dr);
-    float rad = uRipple.z * 1.15;
-    float q = (lr - rad) / 0.07;
-    float rf = exp(-q * q) * (1.0 - uRipple.z / 1.8) * (1.0 - star);
-    sp += dr / (lr + 0.0001) * rf * 0.06;
-    br *= 1.0 + rf * 2.2;
+  // 多个波纹互相独立，各自扩散到寿命结束
+  vec2 push = vec2(0.0);
+  float glow = 0.0;
+  for (int i = 0; i < 16; i++) {
+    vec3 rp = uRipple[i];
+    if (rp.z < 1.8) {
+      vec2 dr = sp - rp.xy;
+      float lr = length(dr);
+      float q = (lr - rp.z * 1.15) / 0.07;
+      float rf = exp(-q * q) * (1.0 - rp.z / 1.8) * (1.0 - star);
+      push += dr / (lr + 0.0001) * rf * 0.06;
+      glow += rf;
+    }
   }
+  sp += push;
+  br *= 1.0 + min(glow, 1.5) * 2.2;
   ndc = vec2(sp.x / uAspect, sp.y);
 
   float size = aS.z * uViewH * 0.5 * FOCAL / z * (star > 0.5 ? 1.0 : uScale);
